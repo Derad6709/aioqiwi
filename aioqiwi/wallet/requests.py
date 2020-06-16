@@ -538,9 +538,9 @@ class Wallet(requests.Requests):
 
         if close_connector_ate:
             app.on_shutdown.append(self._on_app_shutdown)
-
+        server.setup(self.handler_manager, app, path)
         runner = web.AppRunner(app)
-        await runner.setup(self.handler_manager, app, path)
+        await runner.setup()
         site = web.TCPSite(runner, host, port)
         await site.start()
         
