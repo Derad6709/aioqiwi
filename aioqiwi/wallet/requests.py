@@ -540,8 +540,11 @@ class Wallet(requests.Requests):
             app.on_shutdown.append(self._on_app_shutdown)
 
         server.setup(self.handler_manager, app, path)
-        web.run_app(app, host=host, port=port)
-
+        runner = web.AppRunner(app)
+        await runner.setup()
+        site = web.TCPSite(runner, host, port)
+        await site.start()
+        
     def configure_for_app(
         self, app: "web.Application", path: str = None, close_connector_ate: bool = True
     ):
