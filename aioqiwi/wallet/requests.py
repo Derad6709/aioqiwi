@@ -517,7 +517,7 @@ class Wallet(requests.Requests):
     # end region
 
     # blocking op setup -> run server
-    def idle(
+    async def idle(
         self,
         host: str = "localhost",
         port: int = 7494,
