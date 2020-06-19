@@ -5,7 +5,7 @@ import logging
 import time
 import warnings
 from typing import TYPE_CHECKING, List, Optional, Tuple, Union, Type
-
+import asyncio
 from ..core import currencies, handler, requests, returns
 from ..core.tooling import phone as phone_module
 from ..wallet import enums, server
@@ -27,6 +27,7 @@ from .errors import ErrorInfo
 
 if TYPE_CHECKING:
     from aiohttp import web
+    from web import AppRunner
 
 try:
     import aiofiles
@@ -517,13 +518,14 @@ class Wallet(requests.Requests):
     # end region
 
     # blocking op setup -> run server
-    async def idle(
+    def idle(
         self,
         host: str = "localhost",
         port: int = 7494,
         path: Optional[str] = None,
         app: Optional["web.Application"] = None,
         close_connector_ate: bool = True,
+        app_runner: bool = False
     ):
         """
         :param close_connector_ate: close connector at the end.
@@ -531,6 +533,7 @@ class Wallet(requests.Requests):
         :param port: server port that open for tcp/ip trans.
         :param path: path for qiwi that will send requests
         :param app: pass web.Application if you want, common-use - aiogram powered webhook-bots
+        :param app_runner: non-blocking AppRunner
         """
         from aiohttp import web
 
@@ -538,12 +541,24 @@ class Wallet(requests.Requests):
 
         if close_connector_ate:
             app.on_shutdown.append(self._on_app_shutdown)
+
         server.setup(self.handler_manager, app, path)
+        if app_runner:
+            loop = asyncio.get_event_loop()
+            app_runner = loop.run_until_complete(self.run_server(app, host, port))
+            loop.run_forever()
+        else:
+            web.run_app(app=app, host=host, port=port)
+
+    async def run_server(self, app, host, port):
+        print(f"======= Running on {host}:{port} ======")
+        from aiohttp import web
         runner = web.AppRunner(app)
         await runner.setup()
         site = web.TCPSite(runner, host, port)
         await site.start()
-        
+
+
     def configure_for_app(
         self, app: "web.Application", path: str = None, close_connector_ate: bool = True
     ):
