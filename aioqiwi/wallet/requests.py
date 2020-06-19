@@ -544,19 +544,19 @@ class Wallet(requests.Requests):
 
         server.setup(self.handler_manager, app, path)
         if app_runner:
-            loop = asyncio.get_event_loop()
-            app_runner = loop.run_until_complete(self.run_server(app, host, port))
-            loop.run_forever()
+            app_runner = asyncio.ensure_future(self.run_server(app, host, port))
         else:
             web.run_app(app=app, host=host, port=port)
 
     async def run_server(self, app, host, port):
-        print(f"======= Running on {host}:{port} ======")
+        print(f"======= Serving on {host}:{port} ======")
+
         from aiohttp import web
         runner = web.AppRunner(app)
         await runner.setup()
         site = web.TCPSite(runner, host, port)
         await site.start()
+        #await asyncio.sleep(100*3600)
 
 
     def configure_for_app(
