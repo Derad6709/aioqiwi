@@ -20,7 +20,7 @@ package_data = \
 {'': ['*']}
 
 install_requires = \
-['aiohttp>=3.6.2,<4.0.0', 'pydantic>=1.4,<2.0']
+['aiohttp>=3.6.2,<4.0.0', 'pydantic>=1.4,<2.0', 'nest-asyncio>=1.3.3']
 
 setup_kwargs = {
     'name': 'aioqiwi',
