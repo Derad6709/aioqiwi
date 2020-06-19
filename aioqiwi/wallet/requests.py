@@ -518,7 +518,7 @@ class Wallet(requests.Requests):
     # end region
 
     # blocking op setup -> run server
-    def idle(
+    async def idle(
         self,
         host: str = "localhost",
         port: int = 7494,
@@ -538,17 +538,19 @@ class Wallet(requests.Requests):
         from aiohttp import web
 
         app = app if app is not None else web.Application()
-
         if close_connector_ate:
             app.on_shutdown.append(self._on_app_shutdown)
 
         server.setup(self.handler_manager, app, path)
         if app_runner:
-            app_runner = asyncio.ensure_future(self.run_server(app, host, port))
+            await self.run_server_async(app, host, port)
         else:
+            loop = asyncio.get_event_loop()
+            import nest_asyncio
+            nest_asyncio.apply()
             web.run_app(app=app, host=host, port=port)
 
-    async def run_server(self, app, host, port):
+    async def run_server_async(self, app, host, port):
         print(f"======= Serving on {host}:{port} ======")
 
         from aiohttp import web
