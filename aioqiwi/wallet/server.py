@@ -12,8 +12,8 @@ RESPONSE_TIMEOUT = 55
 
 QIWI_IP_1 = ipaddress.IPv4Address("91.232.231.36")
 QIWI_IP_2 = ipaddress.IPv4Address("91.232.231.35")
-
-allowed_ips = {QIWI_IP_1, QIWI_IP_2}
+LOCAL_IP = ipaddress.IPv4Address("127.0.0.1")
+allowed_ips = {QIWI_IP_1, QIWI_IP_2, LOCAL_IP}
 
 
 def _check_ip(ip: str) -> bool:
